@@ -176,7 +176,8 @@ const getCarrierDisablingNumber = () => {
       disablingNumber = '*740';
       break; 
     default:
-      disablingNumber = '#67#'     
+      disablingNumber = '#67#';
+      
   }       
   return disablingNumber;  
 };
