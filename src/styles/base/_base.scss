@@ -96,6 +96,10 @@ i.material-icons {
   color: $error-red;
 }
 
+div.half-margin {
+  margin: 2rem;
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */

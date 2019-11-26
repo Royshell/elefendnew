@@ -50,8 +50,12 @@ export default class TutorialStepThree extends Component {
   render() {
     return (
       <div className="widget flexable-widget">
-        <p className="widget__main-p">Step 3 of 3 </p>
-        <div className="widget__title widget__mobile-title">Activate call forward of silenced calls</div>
+
+        { !this.state.isConfirmed &&  <Fragment>
+          <p className="widget__main-p">Step 3 of 3 </p>
+          <div className="widget__title widget__mobile-title">Activate call forward of silenced calls</div> 
+        </Fragment>      
+      }
         { !this.state.isConfirmed && !this.state.isFailed && <Fragment>
           <p className="widget__medium-p">This allows Elefend to receive, monitor, and forward back to you any silenced calls from unknown numbers.</p>
           <p className="widget__medium-p">We just sent you text message with the following number</p>
@@ -66,11 +70,11 @@ export default class TutorialStepThree extends Component {
           </Fragment> }
         { this.state.isValidating && <ValidatingWidget/> }
         { this.state.isConfirmed && <Fragment>
-            <div className="widget">
+            <div className={'widget ' + this.state.isConfirmed ? 'half-margin': ''}>
               <img className="widget__natural-img" src="assets/img/success.png" />
             </div>
-            <div className="widget">
-              <div className="widget__title">Thank you for joining Elefend Beta!</div>
+            <div className="widget half-margin">
+              <div className="widget__title"><strong>Thank you for joining Elefend!</strong></div>
               <div className="widget__input-wrapper">
               <button><a href="mailto:info@elefend.com">Contact us for feedback</a></button>
             </div>
