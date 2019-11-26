@@ -28,6 +28,7 @@ export default class TutorialStepThree extends Component {
                 var lastFwdStatus = checkForwarding() //again - use const and add a ';'
                 if ("SUCCESS" === lastFwdStatus) {
                     theClass.setState({isFailed: false});
+                    this.setState({isValidating: false});
                     sendSuccessSMS(`Congradulations! Elefend Beta is successfully installed! to deactivate please press ${disablingNumber}`).then(()=>{return});
                     theClass.setState({isConfirmed:true})
                 } else if ("FAILED" === lastFwdStatus || "INIT" !== lastFwdStatus) {
