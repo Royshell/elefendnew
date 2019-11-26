@@ -36,7 +36,7 @@ class TutorialStepOneNoiphone extends Component {
     });
   };
   componentDidMount = () => {
-    sendSuccessSMS('Link the "Google Play" button to the link --> https://play.google.com/store/apps/details?id=com.elefend.callblocker');
+    sendSuccessSMS('Please download Elefend Silence Unknown Callers app here https://play.google.com/store/apps/details?id=com.elefend.callblocker');
   };
   render() {
     return (
@@ -46,7 +46,7 @@ class TutorialStepOneNoiphone extends Component {
         { !this.state.isValditaionFailed && <Fragment>
           <p className="widget__medium-p">This app will automatically silence unknown calls.</p>
           <img className="widget__natural-img" src="assets/img/android-app.png"/> 
-          <p className="widget__medium-p">Go to the Google Play Store on your phone, search for the Elefend { <br className="not-on-mobile"/> }  Unknown Calls Blocker app, and install it!</p>
+          <p className="widget__medium-p">Go to the Google Play Store on your phone, search for the Elefend { <br className="not-on-mobile"/> } Silence Unknown Callers app, and install it!</p>
           <div className="widget__input-wrapper">
             <button onClick={ this.onConfirmDownload }>I downloaded and activated the app</button>
           </div>

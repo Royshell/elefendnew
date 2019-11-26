@@ -29,7 +29,7 @@ export default class TutorialStepThree extends Component {
                 if ("SUCCESS" === lastFwdStatus) {
                     theClass.setState({isFailed: false});
                     this.setState({isValidating: false});
-                    sendSuccessSMS(`Congradulations! Elefend Beta is successfully installed! to deactivate please press ${disablingNumber}`).then(()=>{return});
+                    sendSuccessSMS(`Congratulations! Elefend Beta is successfully installed! To deactivate the service please press ${disablingNumber}`).then(()=>{return});
                     theClass.setState({isConfirmed:true})
                 } else if ("FAILED" === lastFwdStatus || "INIT" !== lastFwdStatus) {
                     theClass.setState({isFailed: true});
