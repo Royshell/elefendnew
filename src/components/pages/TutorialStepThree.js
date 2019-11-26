@@ -5,7 +5,8 @@ import {
     checkForwardingResult,
     getCallForwardingNumber,
     verifyCallForwarding,
-    sendForwardingNumberAsSMS,
+    getCarrierDisablingNumber,
+    sendSuccessSMS
 } from '../../services/ElefendAPI'
 
 export default class TutorialStepThree extends Component {
@@ -13,9 +14,9 @@ export default class TutorialStepThree extends Component {
     isValidating: false,
     isConfirmed: false,
     isFailed: false ,
-    forwardingNumber: getCallForwardingNumber() //API Doesn't suplly access to PIN
   };
   onCallConfirm = () => {
+    let disablingNumber = getCarrierDisablingNumber();
     this.setState({ isValidating: true });
     
     verifyCallForwarding().then(()=> {
@@ -27,6 +28,7 @@ export default class TutorialStepThree extends Component {
                 var lastFwdStatus = checkForwarding() //again - use const and add a ';'
                 if ("SUCCESS" === lastFwdStatus) {
                     theClass.setState({isFailed: false});
+                    sendSuccessSMS(`Congradulations! Elefend Beta is successfully installed! to deactivate please press ${disablingNumber}`).then(()=>{return});
                     theClass.setState({isConfirmed:true})
                 } else if ("FAILED" === lastFwdStatus || "INIT" !== lastFwdStatus) {
                     theClass.setState({isFailed: true});
@@ -41,7 +43,7 @@ export default class TutorialStepThree extends Component {
   };
   sendSMS = async () => {  
     this.setState({ isValidating: true });
-    await sendForwardingNumberAsSMS(); 
+    await sendSuccessSMS(`To activate call forward of silenced calls please dial the following number:${ getCallForwardingNumber() }`);
     this.setState({ isValidating: false });
   };
   render() {

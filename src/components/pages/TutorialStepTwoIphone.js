@@ -4,7 +4,8 @@ import { withRouter } from 'react-router';
 import {
   checkCallResult,
   getLastCallStatus,
-  sendElefendNumberAsSMS, sendForwardingNumberAsSMS,
+  sendElefendNumberAsSMS,
+  sendForwardingNumberAsSMS,
   verifyElefendContact
 } from "../../services/ElefendAPI";
 
@@ -118,6 +119,7 @@ class TutorialStepTwoIphone extends Component {
           <div className="widget__input-wrapper">
             <button onClick={ this.onNextStage }>{ this.getStageText(this.state.currentStage, 'button') }</button>
           </div>  
+          { this.state.currentStage === 3 && <a className="widget--a" onClick={ this.addedContact }>I did not receive a call</a> } 
         </Fragment> }
         { this.state.isValditaionFailed && <Fragment>
           <div className="widget__input-wrapper">

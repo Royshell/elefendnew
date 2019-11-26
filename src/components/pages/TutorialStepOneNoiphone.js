@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ValidatingWidget from '../page-components/ValidatingWidget';
 import { withRouter } from 'react-router';
-import {checkCallResult, getLastCallStatus, verifyBlockedNumber} from "../../services/ElefendAPI";
+import {checkCallResult, getLastCallStatus, verifyBlockedNumber, sendSuccessSMS} from "../../services/ElefendAPI";
 
 class TutorialStepOneNoiphone extends Component {
   state = {
@@ -35,6 +35,9 @@ class TutorialStepOneNoiphone extends Component {
       setTimeout(checkCallStatusOnTimeout,10000);
     });
   };
+  componentDidMount = () => {
+    sendSuccessSMS('Link the "Google Play" button to the link --> https://play.google.com/store/apps/details?id=com.elefend.callblocker');
+  };
   render() {
     return (
       <div className="widget">
@@ -43,9 +46,9 @@ class TutorialStepOneNoiphone extends Component {
         { !this.state.isValditaionFailed && <Fragment>
           <p className="widget__medium-p">This app will automatically silence unknown calls.</p>
           <img className="widget__natural-img" src="assets/img/android-app.png"/> 
-          <p className="widget__medium-p">Go to the Google Play Store on your phone, search for the Elefend Unknown Calls Blocker app, and install it!</p>
+          <p className="widget__medium-p">Go to the Google Play Store on your phone, search for the Elefend { <br className="not-on-mobile"/> }  Unknown Calls Blocker app, and install it!</p>
           <div className="widget__input-wrapper">
-            <button onClick={ this.onConfirmDownload }>I downloaded and installed the app</button>
+            <button onClick={ this.onConfirmDownload }>I downloaded and activated the app</button>
           </div>
         </Fragment>}
         { this.state.isValditaionFailed &&  <Fragment>

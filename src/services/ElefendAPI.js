@@ -159,25 +159,48 @@ const checkCarrier = async(phoneNumber) => {
   }
 }
 
+const getCarrierDisablingNumber = () => {
+  let carrier = api_states.carrier;
+  let disablingNumber;
+  switch(carrier) {
+    case 'AT&T Wireless':
+      disablingNumber = '#67##';
+      break;  
+    case 'T-Mobile USA, Inc.':
+      disablingNumber = '#67##';
+      break;  
+    case 'Verizon Wireless':
+      disablingNumber = '*73';
+      break; 
+    case 'Sprint Spectrum, L.P.':
+      disablingNumber = '*740';
+      break; 
+    default:
+      disablingNumber = 'unknown'     
+  }       
+  return disablingNumber;  
+};
+ 
+
 function getTemplateForCarrier(carrier) {
-  if(carrier==="972") {
+  if(carrier==="972") {api_states.carrier
     return "*67*XXXXXX#"
   }
 
   if(carrier=="AT&T Wireless") {
-    return "*90XXXXXX#"
+    return "*67*1XXXXXX*11#";
   }
 
   if(carrier=="T-Mobile USA, Inc.") {
-    return "*67*XXXXXX#";
+    return "**67*1XXXXXX#";
   }
 
   if(carrier=="Verizon Wireless") {
-    return "*71XXXXXX#";
+    return "*71XXXXXX";
   }
 
   if(carrier=="Sprint Spectrum, L.P.") {
-    return "*74XXXXXX#"
+    return "*74XXXXXX";
   }
   return "Unknown";
 }
@@ -397,15 +420,33 @@ const verifyCallForwarding = async() => {
     console.log(err);
   }
 };
+
+const sendSuccessSMS = async(message) => { 
+  const body = {
+    client_id: my_client_id,
+    login_key: uuid,
+    phone: savedPhoneNumber,
+    sms_data: message,
+  };
+  try {
+    const response = await fetch(proxyurl + 'https://pbx.elefend.com:8000/api/successSMS/', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+      'Content-type': 'application/json; charset=UTF-8'
+      }
+    });
+
+  } catch(err) {
+    console.log(err);
+  }
+};
+
+
 String.prototype.replaceAt=function(index, replacement) {
   return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
 }
 
 
-
-
-
-
-
-export  { carrierOk, checkCarrier, checkVerified, checkRegistered,checkLogin, login, registerPhoneNumber,
-  verifyPhoneNumber, verifyBlockedNumber, checkCallResult, verifyElefendContact, verifyCallForwarding , getLastCallStatus, sendElefendNumberAsSMS, sendForwardingNumberAsSMS, getCallForwardingNumber, checkForwardingResult, checkForwarding};
+export  { carrierOk, checkCarrier, checkVerified, checkRegistered,checkLogin, login, registerPhoneNumber, getCarrierDisablingNumber,
+  verifyPhoneNumber, verifyBlockedNumber, checkCallResult, verifyElefendContact, verifyCallForwarding , getLastCallStatus, sendElefendNumberAsSMS, sendForwardingNumberAsSMS, getCallForwardingNumber, checkForwardingResult, checkForwarding, sendSuccessSMS};
