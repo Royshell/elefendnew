@@ -89,7 +89,7 @@ class PhoneFormPage extends Component {
             <div className="widget__input-wrapper widget__mobile-margin">
               <button onClick={ this.getPhoneNumber} >Verify</button>
             </div> 
-            <p className="widget__small-p">By clicking VERIFY, I understand and agree to Elefend's <a className="widget--a"> terms and conditions </a> and <a className="widget--a" > privacy policy </a></p>
+            <p className="widget__small-p">By clicking VERIFY, I understand and agree to Elefend's <a className="widget--a" href="/assets/html/tsandcs.html"> terms and conditions </a> and <a className="widget--a" href="/assets/html/tos.html" > privacy policy </a></p>
           </div>
           )
       }

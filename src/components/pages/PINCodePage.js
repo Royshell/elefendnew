@@ -92,6 +92,7 @@ class PINCodePage extends Component {
   resendPIN = async () => {
      /*I've assumed that resgisterPhoneNumber() resend the PIN code it not, please change*/
     this.setState({ isValidating: true });
+    this.setState({ isValid: undefined });
     [...allElements].map( el => el.value = '');
     await registerPhoneNumber(localStorage.getItem("phonenumber"));
     this.setState({ PIN: 'xxxx' });

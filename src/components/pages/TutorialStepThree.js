@@ -6,6 +6,7 @@ import {
     getCallForwardingNumber,
     verifyCallForwarding,
     getCarrierDisablingNumber,
+    getCallForwardingFormattdNumber,
     sendSuccessSMS
 } from '../../services/ElefendAPI'
 
@@ -16,8 +17,9 @@ export default class TutorialStepThree extends Component {
     isFailed: false ,
   };
   onCallConfirm = () => {
-    let disablingNumber = getCarrierDisablingNumber();
     this.setState({ isValidating: true });
+    let disablingNumber = getCarrierDisablingNumber();
+    
     
     verifyCallForwarding().then(()=> {
         this.setState({isValidating: true});
@@ -25,15 +27,16 @@ export default class TutorialStepThree extends Component {
 
         function checkCallStatusOnTimeout() {
             checkForwardingResult().then(() => {
+                theClass.setState({isValidating: false});
                 var lastFwdStatus = checkForwarding() //again - use const and add a ';'
+               
                 if ("SUCCESS" === lastFwdStatus) {
                     theClass.setState({isFailed: false});
-                    this.setState({isValidating: false});
+                   
                     sendSuccessSMS(`Congratulations! Elefend Beta is successfully installed! To deactivate the service please press ${disablingNumber}`).then(()=>{return});
                     theClass.setState({isConfirmed:true})
                 } else if ("FAILED" === lastFwdStatus || "INIT" !== lastFwdStatus) {
                     theClass.setState({isFailed: true});
-                    theClass.setState({isValidating: false});
                 } else {
                     setTimeout(checkCallStatusOnTimeout, 10000);
                 }
@@ -61,7 +64,7 @@ export default class TutorialStepThree extends Component {
           <p className="widget__medium-p">We just sent you text message with the following number</p>
           <img className="widget__natural-img" src="assets/img/dial.svg" />
           <div className="widget__asterisk-number">
-            {  getCallForwardingNumber() }
+            {  getCallForwardingFormattdNumber() }
           </div>
           <p className="widget__medium-p">Call this number on your phone</p>
           <div className="widget__input-wrapper">

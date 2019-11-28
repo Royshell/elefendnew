@@ -206,6 +206,10 @@ function getTemplateForCarrier(carrier) {
   return "Unknown";
 }
 
+const getCallForwardingFormattdNumber = () =>{
+  const template = getTemplateForCarrier(api_states.carrier);
+  return template.replace("XXXXXX",callForwardingNumber);
+};
 function getCallForwardingNumber() {
   console.log("gcfn DID number:"+savedDidNumber);
     var template = getTemplateForCarrier(api_states.carrier);
@@ -234,6 +238,7 @@ const sendForwardingNumberAsSMS = async() => {
     const results = await response.json();
     console.log("Result from forwarding:"+results); //avoid using console.log not in an error
     savedDidNumber = results["did_line"];
+    callForwardingNumber = results["did_line"];
     console.log("DID number:"+savedDidNumber);
     if(results!==-1) {
       api_states.sent_contact_number = true;
@@ -450,4 +455,4 @@ String.prototype.replaceAt=function(index, replacement) {
 
 
 export  { carrierOk, checkCarrier, checkVerified, checkRegistered,checkLogin, login, registerPhoneNumber, getCarrierDisablingNumber,
-  verifyPhoneNumber, verifyBlockedNumber, checkCallResult, verifyElefendContact, verifyCallForwarding , getLastCallStatus, sendElefendNumberAsSMS, sendForwardingNumberAsSMS, getCallForwardingNumber, checkForwardingResult, checkForwarding, sendSuccessSMS};
+  verifyPhoneNumber, verifyBlockedNumber, checkCallResult, verifyElefendContact, verifyCallForwarding , getLastCallStatus, sendElefendNumberAsSMS, sendForwardingNumberAsSMS, getCallForwardingNumber, checkForwardingResult, checkForwarding, sendSuccessSMS, getCallForwardingFormattdNumber} ;

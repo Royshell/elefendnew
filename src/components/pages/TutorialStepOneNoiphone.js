@@ -36,7 +36,7 @@ class TutorialStepOneNoiphone extends Component {
     });
   };
   componentDidMount = () => {
-    sendSuccessSMS('Please download Elefend Silence Unknown Callers app here https://play.google.com/store/apps/details?id=com.elefend.callblocker');
+    sendSuccessSMS('Please download Elefend Silence Unknown Callers app here:https://play.google.com/store/apps/details?id=com.elefend.callblocker');
   };
   render() {
     return (
