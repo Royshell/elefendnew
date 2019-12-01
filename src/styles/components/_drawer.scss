@@ -1,0 +1,9 @@
+.mdl-layout__drawer {
+  background-color: $bg-color;
+}
+.mdl-layout__drawer .mdl-navigation a.mdl-navigation__link { 
+  color: $main-blue;
+  font-family: 'Montserrat', sans-serif;
+  font-size: $s-size;
+  font-weight: 700;
+}

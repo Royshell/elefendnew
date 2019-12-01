@@ -14,7 +14,7 @@ export default class TutorialStepThree extends Component {
   state = {
     isValidating: false,
     isConfirmed: false,
-    isFailed: false ,
+    isFailed: false,
   };
   onCallConfirm = () => {
     this.setState({ isValidating: true });
