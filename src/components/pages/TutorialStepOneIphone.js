@@ -73,7 +73,7 @@ class TutorialStepOneIphone extends Component {
       <div className="widget">
         <p className="widget__main-p">Step 1 of 3</p>
         <div className="widget__title widget__mobile-title">Silence unknown callers</div>
-        { !this.state.isValditaionFailed &&  <div className="widget__medium-p">This is so Elefend knows which calls to analyze, and can then monitor and forward these calls back to you.</div> }
+        { !this.state.isValditaionFailed &&  <div className="widget__medium-p">This is so Elefend knows which calls to analyze, and can then monitor and { <br className="not-on-mobile"/> } forward these calls back to you.</div> }
         { this.state.isValditaionFailed &&  <Fragment>
           <img className="widget__natural-img" src="assets/img/error.png" /> 
           <p className="widget__main-p noto-font">Unknown callers are not properly blocked on your phone</p>
