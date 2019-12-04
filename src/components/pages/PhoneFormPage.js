@@ -36,9 +36,12 @@ class PhoneFormPage extends Component {
             if(carrierOk())
             {
                 registerPhoneNumber(phoneNumber).then(() => { // Please used a fixed convention of Identation
-                        if(checkRegistered()) {
+                  console.log('in');
+                        if(checkRegistered() === 'registered') {
                             localStorage.setItem('phonenumber', phoneNumber);
                             this.props.history.push('/pin');
+                        } else {
+                          this.props.history.push('/did-unavailable');
                         }
                     });
             } else {

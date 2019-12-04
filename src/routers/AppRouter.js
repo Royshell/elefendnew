@@ -13,6 +13,7 @@ import TutorialStepOneNoiphone from '../components/pages/TutorialStepOneNoiphone
 import AppHeader from '../components/page-components/AppHeader';
 import Drawer from '../components/page-components/Drawer'
 import TutorialStepTwoIphone from '../components/pages/TutorialStepTwoIphone';
+import DIDUnavailablePage from '../components/pages/DIDUnavailablePage';
 
 const AppRouter = () => (
   <BrowserRouter>    
@@ -24,6 +25,7 @@ const AppRouter = () => (
           <Switch>
             <Route path="/" component={ HomePage } exact={ true }/>
             <Route path="/phone-form" component={ PhoneFormPage }/>
+            <Route path="/did-unavailable" component={ DIDUnavailablePage } />
             <Route path="/unavailable" component={ UnavailablePage } />
             <Route path="/pin" component={ PINCodePage } />
             <Route path="/tutorial-step-one" component={ TutorialStepOne } />

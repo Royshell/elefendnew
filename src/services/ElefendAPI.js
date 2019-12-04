@@ -116,10 +116,16 @@ const registerPhoneNumber = async(phoneNumber) => {
       'Content-type': 'application/json; charset=UTF-8'
       }
     });
-    console.log("Got result:"+results); //avoid using console.log if it isn't an error
+
     const results = await response.json();
+    console.log("Got result:"+results); //avoid using console.log if it isn't an error
+    console.log(response.status);
+    if (response.status === 404) {
+      api_states.registered = '404';
+      return;
+    }
     const { result } = results; // new API
-    api_states.registered = true;
+    api_states.registered = 'registered';
     
   } catch(err) {
     console.log(err);
@@ -164,10 +170,10 @@ const getCarrierDisablingNumber = () => {
   let disablingNumber;
   switch(carrier) {
     case 'AT&T Wireless':
-      disablingNumber = '#67##';
+      disablingNumber = '##67#';
       break;  
     case 'T-Mobile USA, Inc.':
-      disablingNumber = '#67##';
+      disablingNumber = '##62#';
       break;  
     case 'Verizon Wireless':
       disablingNumber = '*73';
@@ -193,7 +199,7 @@ function getTemplateForCarrier(carrier) {
   }
 
   if(carrier=="T-Mobile USA, Inc.") {
-    return "**67*1XXXXXX#";
+    return "*62*1XXXXXX#";
   }
 
   if(carrier=="Verizon Wireless") {
