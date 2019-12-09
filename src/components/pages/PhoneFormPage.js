@@ -17,57 +17,52 @@ class PhoneFormPage extends Component {
     phoneNumber: '',
     login_status: 'Trying'
   };
-  onLoad = async() => { //I've created this function based on the functions which triggers when the component loads. Verify it works properly
+
+  onLoad = async() => {
     await login();
-    if(checkLogin()) {
-        this.setState({login_status:'OK'});
-    } else {
-        this.setState({login_status:'Failed'})
-    }
+    checkLogin() ? this.setState({ login_status: 'OK' }) : this.setState({ login_status:'Failed' });
   };
-   onPhoneNumberInputChange = (e) => {
+
+  onPhoneNumberInputChange = (e) => {
     const phoneNumber = e.target.value;
     this.setState(() => ({ phoneNumber }));
   };
-    getPhoneNumber = () => {
-        const phoneNumber = this.state.phoneNumber;
-        checkCarrier(phoneNumber).then(()=>   //There should be a space before =>
-        {
-            if(carrierOk())
-            {
-                registerPhoneNumber(phoneNumber).then(() => { // Please used a fixed convention of Identation
-                  console.log('in');
-                        if(checkRegistered() === 'registered') {
-                            localStorage.setItem('phonenumber', phoneNumber);
-                            this.props.history.push('/pin');
-                        } else {
-                          this.props.history.push('/did-unavailable');
-                        }
-                    });
-            } else {
-                this.props.history.push('/unavailable');
-            }
-        }).catch(reason => {
-            console.log("Error:"+reason); // Avoid using " " for strings. Use ' or `
-        });
-    }
- 
-  componentDidMount = async() => {
-    await login();
 
-    if(checkLogin()) {
-        this.setState({login_status:'OK'});
-    } else {
-        this.setState({login_status:'Failed'})
-    }
-    const phoneInput = document.querySelector('input');
-    phoneInput.focus();
+  getPhoneNumber = async() => {
+
+    try {
+      const phoneNumber = this.state.phoneNumber;
+      await checkCarrier(phoneNumber); 
+
+      if(carrierOk()) {
+        await registerPhoneNumber(phoneNumber);
+
+        if(checkRegistered() === 'registered') {
+          localStorage.setItem('phonenumber', phoneNumber);
+          this.props.history.push('/pin');
+        } else {
+          this.props.history.push('/did-unavailable');
+        }
+      } else {
+        this.props.history.push('/unavailable');
+      }
+    } catch (err) {
+      console.error(err);
+    }  
   };
+
   handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       this.getPhoneNumber();
     }
   };
+
+  componentDidMount = async() => {
+    this.onLoad();
+    const phoneInput = document.querySelector('input');
+    phoneInput.focus();
+  };
+  
   render() {
       if(this.state.login_status=='OK') { // please use === instead of == also, there = should be a space before and after every logical operator. Ident the code
         return (
