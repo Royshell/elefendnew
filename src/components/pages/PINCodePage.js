@@ -14,33 +14,7 @@ class PINCodePage extends Component {
     isValidating: false
   };
 
-
-    constructor(props) { ///with babel 7 and the plugins i've added we don't use constructors
-        super(props);
-        // this.onCleave0Init = this.onCleave0Init.bind(this);
-        // this.onCleave1Init = this.onCleave1Init.bind(this);
-        // this.onCleave2Init = this.onCleave2Init.bind(this);
-        // this.onCleave3Init = this.onCleave3Init.bind(this);
-    }
-
-    // onCleave0Init(cleave) {
-    //     this.setState({cleave0:cleave});
-    // }
-
-    // onCleave1Init(cleave) {
-    //     this.setState({cleave1:cleave});
-    // }
-
-    // onCleave2Init(cleave) {
-    //     this.setState({cleave2:cleave});
-    // }
-
-    // onCleave3Init(cleave) {
-    //     this.setState({cleave3:cleave});
-    // }
-
-  onDigitAdd = async(e) => { //please ident the code
-
+  onDigitAdd = async(e) => {
     const currentNode = e.target;
     const digit = currentNode.value;  
     
@@ -57,6 +31,7 @@ class PINCodePage extends Component {
         if (currentIndex < 3 && !isNaN(digit - parseFloat(digit))) {
           allElements[currentIndex + 1].focus();
         } 
+
         if (this.state.PIN.length === 4 && !this.state.PIN.includes('x')) {
           this.setState ({ isChecked: true });
           this.checkPIN(this.state.PIN);
@@ -68,41 +43,52 @@ class PINCodePage extends Component {
     } 
   };
 
-  checkPinFromButton = ()=> {
+  checkPinFromButton = () => {
     this.checkPIN(this.state.PIN);
   };
 
-  checkPIN = (PINCode) => {
+  checkPIN = async(PINCode) => {
     this.setState({ isValidating: true });
-    verifyPhoneNumber(PINCode).then(() => {
+
+    try {
+      await verifyPhoneNumber(PINCode);
+      this.setState({ isValidating: false });
+
       if(checkVerified()) {
-        this.setState({isValid: true});
+        this.setState({ isValid: true });
         this.props.history.push('/tutorial-step-one');
       } else {
-        this.setState({ isValidating: false });
         this.setState({ isValid: false });
       }
-    }).catch(() => {
+    } catch(err) {
       this.setState({ isValidating: false });
       this.setState({ isValid: false });
-      /* NOTICE - this functionality forwards the client towards unavailable page.
-      API should also detect the case where the PIN is inserted but not correct */
-    });
+    }
   }; 
+
   resendPIN = async () => {
-     /*I've assumed that resgisterPhoneNumber() resend the PIN code it not, please change*/
     this.setState({ isValidating: true });
+    try {
+      await registerPhoneNumber(localStorage.getItem("phonenumber"));
+    } catch(err) {
+
+    }
+    this.refreshInputs();
+  };
+
+  refreshInputs = () => {
     this.setState({ isValid: undefined });
     [...allElements].map( el => el.value = '');
-    await registerPhoneNumber(localStorage.getItem("phonenumber"));
     this.setState({ PIN: 'xxxx' });
     this.setState({ isChecked: false });
     this.setState({ isValidating: false });
-  }
-  componentDidMount = () =>{
+  };
+
+  componentDidMount = () => {
     allElements = document.querySelectorAll('input');
     [...allElements][0].focus();
   };
+
   render() {
     return (
       <div className="widget">
@@ -118,15 +104,6 @@ class PINCodePage extends Component {
               className={ 'widget__digit-input ' + (this.state.isChecked && this.state.isValid !== undefined && !this.state.isValid ? 'widget__input-not-valid' : '') } 
               onChange={ this.onDigitAdd }
             />         
-          { /*
-            <Cleave
-              tabIndex="0"
-              className={ 'widget__digit-input ' + (this.state.isChecked && this.state.isValid !== undefined && !this.state.isValid ? 'widget__input-not-valid' : '') }
-              options={ { numericOnly: true, blocks: [1]} }
-              onChange={ this.onDigitAdd }
-              //onInit={ this.onCleave0Init }
-            />
-          */}
           </div>
           <div className="widget__digit-container">
             <input 

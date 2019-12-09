@@ -9,17 +9,15 @@ class TutorialStepOneIphone extends Component {
     isValditaionFailed: false,
     isValidating: false,
   };
+
   onNextStage = () => {
-   
-    if (this.state.currentStage < 4) {
-      this.setState({ currentStage: this.state.currentStage + 1 })
-    } else {
-      this.onConfirmSilenceCallers();
-    }
+    this.state.currentStage < 4 ? this.setState({ currentStage: this.state.currentStage + 1 }) : this.onConfirmSilenceCallers();
   };
+
   onConfirmUnknownNumbersAreBlocked = () => {
     this.props.history.push('/tutorial-step-two-iphone');
   };
+
   getStageText = (currentStage) => {
     let text; 
 
@@ -44,7 +42,7 @@ class TutorialStepOneIphone extends Component {
     return text;
   };
   onConfirmSilenceCallers = () => {
-    /*API Call goes here */
+
     this.setState({ isValidating: true });
     verifyBlockedNumber().then(()=>{
       this.setState({ isValidating: true}); //loader should appear before .then()
