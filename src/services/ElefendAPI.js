@@ -199,7 +199,7 @@ function getTemplateForCarrier(carrier) {
   }
 
   if(carrier=="T-Mobile USA, Inc.") {
-    return "*62*1XXXXXX#";
+    return "**62*1XXXXXX#";
   }
 
   if(carrier=="Verizon Wireless") {
