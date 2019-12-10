@@ -8,36 +8,45 @@ class TutorialStepOneNoiphone extends Component {
     isValditaionFailed: false,
     isValidating: false,
   };
+
   onConfirmUnknownNumbersAreBlocked = () => {
     this.props.history.push('/tutorial-step-two-noiphone');
   };
-  onConfirmDownload = () => {
-    /*API Call goes here */
-    this.setState({ isValidating: true });
-    verifyBlockedNumber().then(()=>{
-      this.setState({ isValidating: true});
-      const theClass = this; // no need when using arrow functions RS
-      function checkCallStatusOnTimeout() { //old syntax. please use arrow functions RS
-        checkCallResult().then(()=>{
-          var lastCallStatus =  getLastCallStatus() // please use 'const' instead of var and add ; RS
-          if ("HUNGUP" === lastCallStatus) {
-            theClass.props.history.push('/tutorial-step-two-noiphone');
-          } else if ("ANSWERED" === lastCallStatus || "INIT" !== lastCallStatus)
-          {
-            theClass.setState({isValditaionFailed: true});
-            theClass.setState({isValidating: false}); 
-          } else {
-            setTimeout(checkCallStatusOnTimeout,10000);
-          }
-        })
-      }
 
-      setTimeout(checkCallStatusOnTimeout,10000);
-    });
+  onConfirmDownload = async() => {
+    this.setState({ isValidating: true });
+
+    try {
+      await verifyBlockedNumber();
+      await this.checkCallStatus();
+    } catch {
+      this.setState({ isValidating: false });
+    }
   };
+
+  checkCallStatus = async() => {
+
+    try {
+      await checkCallResult();
+      const lastCallStatus =  getLastCallStatus();
+
+      if (lastCallStatus === 'HUNGUP') {
+        this.props.history.push('/tutorial-step-two-noiphone');
+      } else if (lastCallStatus === 'ANSWERED' || lastCallStatus !== 'INIT') {
+        this.setState({ isValidating: false }); 
+        this.setState({ isValditaionFailed: true });
+      } else {
+        setTimeout(this.checkCallStatus, 10000);
+      }
+    } catch {
+      this.setState({ isValidating: false }); 
+    }
+  }
+
   componentDidMount = () => {
     sendSuccessSMS('Please download Elefend Silence Unknown Callers app here:https://play.google.com/store/apps/details?id=com.elefend.callblocker');
   };
+
   render() {
     return (
       <div className="widget">

@@ -15,7 +15,8 @@ import { withRouter } from 'react-router';
 class PhoneFormPage extends Component {
   state = {
     phoneNumber: '',
-    login_status: 'Trying'
+    login_status: 'Trying',
+    isValditaing: false
   };
 
   onLoad = async() => {
@@ -29,10 +30,13 @@ class PhoneFormPage extends Component {
   };
 
   getPhoneNumber = async() => {
+    this.setState({ isValditaing: true });
 
     try {
       const phoneNumber = this.state.phoneNumber;
+      
       await checkCarrier(phoneNumber); 
+      this.setState({ isValditaing: false });
 
       if(carrierOk()) {
         await registerPhoneNumber(phoneNumber);
@@ -47,6 +51,7 @@ class PhoneFormPage extends Component {
         this.props.history.push('/unavailable');
       }
     } catch (err) {
+      this.setState({ isValditaing: false });
       console.error(err);
     }  
   };
@@ -60,11 +65,14 @@ class PhoneFormPage extends Component {
   componentDidMount = async() => {
     this.onLoad();
     const phoneInput = document.querySelector('input');
-    phoneInput.focus();
+
+    if(phoneInput) {
+      phoneInput.focus();
+    }
   };
   
   render() {
-      if(this.state.login_status=='OK') { // please use === instead of == also, there = should be a space before and after every logical operator. Ident the code
+      if(this.state.login_status === 'OK') { 
         return (
           <div className="widget">
             <p className="widget__main-p"> Before we get started </p>
@@ -74,7 +82,7 @@ class PhoneFormPage extends Component {
               <div className="widget__input-container">
                 <div className="widget__flag">
                   <img src="assets/img/usa.png" />
-                  <span> +1 </span>
+                  <span>+1</span>
                 </div>
                 <Cleave
                   tabIndex="0"
@@ -85,19 +93,20 @@ class PhoneFormPage extends Component {
               </div>
             </div>   
             <div className="widget__input-wrapper widget__mobile-margin">
-              <button onClick={ this.getPhoneNumber} >Verify</button>
+              <button onClick={ this.getPhoneNumber } >Verify</button>
             </div> 
             <p className="widget__small-p">By clicking VERIFY, I understand and agree to Elefend's <a className="widget--a" href="/assets/html/tsandcs.html" target="_blank"> terms and conditions </a> and <a className="widget--a" href="/assets/html/tos.html" target="_blank"> privacy policy </a></p>
+            { this.state.isValditaing && <ValidatingWidget />}
           </div>
-          )
+          
+        );
       }
 
-      if(this.state.login_status=='Trying') {
-          return (
-            <ValidatingWidget message={ 'Loading...' }/>
-          );
-      }
-      else { 
+      if (this.state.login_status === 'Trying') {
+        return (
+          <ValidatingWidget message={ 'Loading...' }/>
+        );
+      } else { 
           return ( 
           <div className="widget">
             <div className="widget__title">Connection to Server Failed</div>
@@ -108,7 +117,7 @@ class PhoneFormPage extends Component {
               <button onClick={ this.onLoad }>Try again</button>
             </div>
           </div>
-        )
+        );
       }
   }
 }

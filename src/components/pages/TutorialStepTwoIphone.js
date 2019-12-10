@@ -14,13 +14,16 @@ class TutorialStepTwoIphone extends Component {
     currentStage: 1,
     isValidating: false,
     isValditaionFailed: false,
-  };  
+  };
+
   onConfirmElefendAdded = () => {
     this.props.history.push('/tutorial-step-three');  
   };
+
   onSendTextAgain = () => {
     this.sendSMS();
   };
+
   getStageText = (currentStage, element) => {
     let text; 
 
@@ -58,14 +61,15 @@ class TutorialStepTwoIphone extends Component {
 
     return text;
   };
+
   onNextStage = async() => {
 
     if (this.state.currentStage < 3) {
-      if (this.state.currentStage === 1) { // on step 1 we send an sms message. please verify this logic works
+      if (this.state.currentStage === 1) {
         try {
-          await this.sendSMS();
+         this.sendSMS();
         } catch(error) {
-          console.log(error);
+          console.error(error);
         }     
       } else if (this.state.currentStage === 2) {
         this.addedContact(); 
@@ -75,33 +79,43 @@ class TutorialStepTwoIphone extends Component {
       this.props.history.push('/tutorial-step-three');
     }
   };
-  sendSMS = () => {  // please ident and refactor the code according to my guidance in previous files. To add a loader image add `this.setState({ isValidating: true });`
-    //API call goes here
-    sendElefendNumberAsSMS().then(
-        ()=>this.setState({ SMSSent: true }));
+
+  sendSMS = async() => {  
+    await sendElefendNumberAsSMS();
   };
-  addedContact = () => { // please ident and refactor the code according to mu guidance in previous files
-  verifyElefendContact().then(() => {
-      this.setState({isValidating: true}); //loader should appear before .then()
-      const theClass = this;
 
-      function checkCallStatusOnTimeout() {
-          checkCallResult().then(() => {
-              var lastCallStatus = getLastCallStatus()
-              if ("ANSWERED" === lastCallStatus) {
-                  sendForwardingNumberAsSMS().then(() => theClass.props.history.push('/tutorial-step-three'));
-              } else if ("HUNGUP" === lastCallStatus || "INIT" !== lastCallStatus) {
-                  theClass.setState({ contactAddError: true });
-                  theClass.setState({isValidating: false});
-              } else {
-                  setTimeout(checkCallStatusOnTimeout, 10000);
-              }
-          })
+  addedContact = async() => {
+  
+    try {
+      this.setState({ isValidating: true });
+      await verifyElefendContact();
+      await this.checkCallStatus();
+    } catch {
+      this.setState({ isValidating: false });
+    }
+  };
+
+  checkCallStatus = async() => {
+
+    try {
+      await checkCallResult();
+      const lastCallStatus =  getLastCallStatus();
+
+      if (lastCallStatus === 'ANSWERED') {
+        await sendForwardingNumberAsSMS();
+        this.props.history.push('/tutorial-step-three');
+      } else if (lastCallStatus === 'HUNGUP' || lastCallStatus !== 'INIT') {
+        this.setState({ isValidating: false }); 
+        this.setState({ contactAddError: true });
+
+      } else {
+        setTimeout(this.checkCallStatus, 10000);
       }
+    } catch {
+      this.setState({ isValidating: false }); 
+    }
+  };
 
-      setTimeout(checkCallStatusOnTimeout, 10000);
-  });
-  ;}
   render() {
     return (
       <div className="widget">

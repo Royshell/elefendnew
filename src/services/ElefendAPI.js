@@ -1,6 +1,5 @@
 
 let uuid;
-let sessionId; //seems to be not in use
 let savedPhoneNumber;
 let savedDidNumber;
 let my_client_id;
@@ -10,106 +9,102 @@ let api_states = {
     registered : false,
     verified: false,
     carrier_ok: false,
-    last_call_status:"unknown",
-    last_forwading_result:"unknown"
-}
+    last_call_status: 'unknown',
+    last_forwading_result: 'unknown'
+};
 
+const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
 
-const proxyurl = "https://cors-anywhere.herokuapp.com/";
-
-function uuidv4() {
+const uuidv4 = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
-}
+};
 
-
-
-function checkLogin() {
+const checkLogin = () => {
   return api_states.logged_in;
-}
+};
 
-function checkRegistered() {
+const checkRegistered = () => {
   return api_states.registered;
-}
+};
 
-function checkVerified() {
+const checkVerified = () => {
   return api_states.verified;
-}
+};
 
-function checkForwarding() {
+const checkForwarding = () => {
   return api_states.last_forwading_result;
-}
+};
 
-function carrierOk() {
-  if(api_states.carrier==="972") {
+const carrierOk = () => {
+  if(api_states.carrier === '972') {
     return true;
   }
 
-  if(api_states.carrier=="AT&T Wireless") {
+  if(api_states.carrier === 'AT&T Wireless') {
     return true;
   }
 
-  if(api_states.carrier=="T-Mobile USA, Inc.") {
+  if(api_states.carrier === 'T-Mobile USA, Inc.') {
     return true;
   }
 
-  if(api_states.carrier=="Verizon Wireless") {
+  if(api_states.carrier === 'Verizon Wireless') {
     return true;
   }
 
-  if(api_states.carrier=="Sprint Spectrum, L.P.") {
+  if(api_states.carrier === 'Sprint Spectrum, L.P.') {
     return true;
   }
   return false;
-}
+};
 
-function getLastCallStatus() {
+const getLastCallStatus = () => {
   return api_states.last_call_status;
-}
+};
 
 const login = async() => {
   if(!my_client_id) {
     my_client_id = uuidv4()
   }
 
-  console.log("Connecting with client ID:"+my_client_id); // please avoid using console.log not in error
   const body = {
     app_secret: '49c5593e35e60467ef6316412e59aa420fa5da39',
-    client_id: my_client_id // need to modified
+    client_id: my_client_id
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/applogin/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/applogin/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
       'Content-type': 'application/json; charset=UTF-8'
       }
     });
-
 
     const results = await response.json();
     const { login_key } = results;
 
     uuid = login_key;
-
     api_states.logged_in = true;
     
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
-}
+};
 
 const registerPhoneNumber = async(phoneNumber) => {
   savedPhoneNumber = phoneNumber || savedPhoneNumber;
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber 
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/register/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/register/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -118,32 +113,28 @@ const registerPhoneNumber = async(phoneNumber) => {
     });
 
     const results = await response.json();
-    console.log("Got result:"+results); //avoid using console.log if it isn't an error
-    console.log(response.status);
+
     if (response.status === 404) {
       api_states.registered = '404';
       return;
     }
-    const { result } = results; // new API
+
     api_states.registered = 'registered';
     
   } catch(err) {
-    console.log(err);
+    console.error(err);
 
   }
-}
-
+};
 
 const checkCarrier = async(phoneNumber) => {
-  if(phoneNumber.startsWith("972")) {
-    api_states.carrier = "972";
+  if(phoneNumber.startsWith('972')) {
+    api_states.carrier = '972';
     return;
   }
 
   try {
-    console.log("Calling textmagic"); //avoid using console.log if it isn't an error
-
-    const response = await fetch(proxyurl+'https://rest.textmagic.com/api/v2/lookups/'+phoneNumber+'?country=US', {
+    const response = await fetch(PROXY_URL + 'https://rest.textmagic.com/api/v2/lookups/' + phoneNumber + '?country=US', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
@@ -154,20 +145,19 @@ const checkCarrier = async(phoneNumber) => {
     });
 
     const results = await response.json();
+    const { carrier } = results;
 
-    console.log("Text magic response:"+response); //avoid using console.log if it isn't an error
-    var carrier;
-    api_states.carrier = results["carrier"];
+    api_states.carrier = carrier;
   } catch(err) {
-    console.log("Error in TM:"+err);
-    api_states.carrier = "Unknown";
-    console.log(err);
+    api_states.carrier = 'Unknown';
+    console.error(err);
   }
-}
+};
 
 const getCarrierDisablingNumber = () => {
   let carrier = api_states.carrier;
   let disablingNumber;
+
   switch(carrier) {
     case 'AT&T Wireless':
       disablingNumber = '##67#';
@@ -189,51 +179,52 @@ const getCarrierDisablingNumber = () => {
 };
  
 
-function getTemplateForCarrier(carrier) {
-  if(carrier==="972") {api_states.carrier
-    return "*67*XXXXXX#"
+const getTemplateForCarrier = (carrier) => { //this functionality should be move to backend. Try to use integeres instead of strings. A swtich case will better than if statements
+
+  if(carrier === '972') {
+    return '*67*XXXXXX#';
   }
 
-  if(carrier=="AT&T Wireless") {
-    return "*67*1XXXXXX*11#";
+  if(carrier === 'AT&T Wireless') {
+    return '*67*1XXXXXX*11#';
   }
 
-  if(carrier=="T-Mobile USA, Inc.") {
-    return "**62*1XXXXXX#";
+  if(carrier === 'T-Mobile USA, Inc.') {
+    return '**62*1XXXXXX#';
   }
 
-  if(carrier=="Verizon Wireless") {
-    return "*71XXXXXX";
+  if(carrier === 'Verizon Wireless') {
+    return '*71XXXXXX';
   }
 
-  if(carrier=="Sprint Spectrum, L.P.") {
-    return "*74XXXXXX";
+  if(carrier === 'Sprint Spectrum, L.P.') {
+    return '*74XXXXXX';
   }
-  return "Unknown";
-}
-
-const getCallForwardingFormattdNumber = () =>{
-  const template = getTemplateForCarrier(api_states.carrier);
-  return template.replace("XXXXXX",callForwardingNumber);
+  return 'Unknown';
 };
-function getCallForwardingNumber() {
-  console.log("gcfn DID number:"+savedDidNumber);
-    var template = getTemplateForCarrier(api_states.carrier);
-    return template.replace("XXXXXX",savedDidNumber);
-}
 
+const getCallForwardingFormattdNumber = () => {
+  const template = getTemplateForCarrier(api_states.carrier);
+  return template.replace('XXXXXX', callForwardingNumber);
+};
+
+const getCallForwardingNumber = () => {
+  const template = getTemplateForCarrier(api_states.carrier);
+  return template.replace('XXXXXX', savedDidNumber);
+};
 
 const sendForwardingNumberAsSMS = async() => {
-  var template = getTemplateForCarrier(api_states.carrier)
+  const template = getTemplateForCarrier(api_states.carrier);
 
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone:savedPhoneNumber,
     template: template
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/sendForwardingNumberAsSMS/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/sendForwardingNumberAsSMS/', { //this request sends an SMS
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -242,28 +233,29 @@ const sendForwardingNumberAsSMS = async() => {
     });
 
     const results = await response.json();
-    console.log("Result from forwarding:"+results); //avoid using console.log not in an error
-    savedDidNumber = results["did_line"];
-    callForwardingNumber = results["did_line"];
-    console.log("DID number:"+savedDidNumber);
-    if(results!==-1) {
+
+    const { did_line } = results
+    savedDidNumber = did_line; 
+    callForwardingNumber = did_line;
+
+    if(results !== -1) {
       api_states.sent_contact_number = true;
     }
   } catch(err) {
-    console.log(err);
+    console.error(err);
     api_states.sent_contact_number = false;
   }
 };
 
-
 const sendElefendNumberAsSMS = async(pincode) => {
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone:savedPhoneNumber
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/sendElefendNumberAsSMS/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/sendElefendNumberAsSMS/', { //this request sends an SMS
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -272,25 +264,27 @@ const sendElefendNumberAsSMS = async(pincode) => {
     });
 
     const results = await response.json();
-    const { result, did_line } = results; // paramas from response
-    if(result!=-1) {
+    const { result } = results;
+
+    if(result !== -1) {
       api_states.sent_contact_number = true;
     }
   } catch(err) {
-    console.log(err);
+    console.error(err);
     api_states.sent_contact_number = false;
   }
 };
 
 const verifyPhoneNumber = async(pincode) => { 
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
     pincode: pincode
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/validateSMS/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/validateSMS/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -299,24 +293,26 @@ const verifyPhoneNumber = async(pincode) => {
     });
 
     const results = await response.json();
-    const { result, did_line } = results; // paramas from response - did_line doesn't seem to be used
-    if(result!=-1) {
+    const { result } = results;
+
+    if(result !== -1) {
       api_states.verified = true;
     }
   } catch(err) {
-    console.log(err);
+    console.error(err);
     api_states.verified = false;
   }
 };
 
 const verifyBlockedNumber = async() => {
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/verifyBlocking/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/verifyBlocking/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -324,23 +320,20 @@ const verifyBlockedNumber = async() => {
       }
     });
 
-    const results = await response.json();
-    const { status } = results;
-  
-
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
 const checkCallResult = async() => { 
   const body = {
-    client_id:  my_client_id, // need to modified
+    client_id:  my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/checkCallResult/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/checkCallResult/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -351,23 +344,24 @@ const checkCallResult = async() => {
     const results = await response.json();
     const { status } = results;
 
-    api_states.last_call_status = results["status"];
+    api_states.last_call_status = status;
 
   } catch(err) {
-    api_states.last_call_status = "Unknown"
-    console.log(err);
+    api_states.last_call_status = 'Unknown'
+    console.error(err);
   }
 };
 
 
 const checkForwardingResult = async() => {
   const body = {
-    client_id:  my_client_id, // need to modified
+    client_id:  my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/checkForwardingResult/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/checkForwardingResult/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -378,22 +372,23 @@ const checkForwardingResult = async() => {
     const results = await response.json();
     const { status } = results;
 
-    api_states.last_forwading_result = results["status"];
+    api_states.last_forwading_result = status;
 
   } catch(err) {
-    api_states.last_call_status = "Unknown"
-    console.log(err);
+    api_states.last_call_status = 'Unknown';
+    console.error(err);
   }
 };
 
 const verifyElefendContact = async() => { 
   const body = {
-    client_id: my_client_id, // needs to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/verifyContact/', {
+    const response = await fetch(PROXY_URL +'https://pbx.elefend.com:8000/api/verifyContact/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -401,35 +396,29 @@ const verifyElefendContact = async() => {
       }
     });
 
-    const results = await response.json();
-    const { status } = results;
-
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
 const verifyCallForwarding = async() => { 
   const body = {
-    client_id: my_client_id, // need to modified
+    client_id: my_client_id, 
     login_key: uuid,
     phone: savedPhoneNumber,
   };
+
   try {
-    const response = await fetch(proxyurl+'https://pbx.elefend.com:8000/api/verifyForwarding/', {
+    const response = await fetch(PROXY_URL + 'https://pbx.elefend.com:8000/api/verifyForwarding/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
       'Content-type': 'application/json; charset=UTF-8'
       }
     });
-
-    const results = await response.json();
-    const { status } = results;
   
-
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -440,8 +429,9 @@ const sendSuccessSMS = async(message) => {
     phone: savedPhoneNumber,
     sms_data: message,
   };
+
   try {
-    const response = await fetch(proxyurl + 'https://pbx.elefend.com:8000/api/successSMS/', {
+    const response = await fetch(PROXY_URL  + 'https://pbx.elefend.com:8000/api/successSMS/', {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
@@ -450,15 +440,14 @@ const sendSuccessSMS = async(message) => {
     });
 
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
 
-String.prototype.replaceAt=function(index, replacement) {
-  return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
-}
-
+String.prototype.replaceAt = function(index, replacement) {
+  return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+};
 
 export  { carrierOk, checkCarrier, checkVerified, checkRegistered,checkLogin, login, registerPhoneNumber, getCarrierDisablingNumber,
   verifyPhoneNumber, verifyBlockedNumber, checkCallResult, verifyElefendContact, verifyCallForwarding , getLastCallStatus, sendElefendNumberAsSMS, sendForwardingNumberAsSMS, getCallForwardingNumber, checkForwardingResult, checkForwarding, sendSuccessSMS, getCallForwardingFormattdNumber} ;

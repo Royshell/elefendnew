@@ -5,12 +5,15 @@ class TutorialStepOne extends Component {
   state = {
     isIphone: 'unset'
   };
+  
   isIphoneSelected = (isIphone) => {
     this.setState({ isIphone });
   };
+
   referToPage = () => {
     this.state.isIphone ? this.props.history.push('/tutorial-step-one-iphone') : this.props.history.push('/tutorial-step-one-noiphone');
   };
+
   render() {
     return (
       <div>

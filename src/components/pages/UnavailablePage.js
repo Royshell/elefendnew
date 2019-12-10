@@ -7,19 +7,23 @@ class UnavailablePage extends Component {
     emailAddress: '',
     ismailSent: false
   };
+
   onEmailAddressChange = (e) => {
     const emailAddress = e.target.value;
     this.setState({ emailAddress });
   };
+
   getEmailAddress = () => {
     //API TO EMAIL ADDRESS GOES HERE - seems like there is no API function for that
 
     //If email sent
     this.setState({ ismailSent: true });
   };
+
   referToPhoneFormPage = () => {
     this.props.history.push('/phone-form');
   };
+  
   render() {
     return (
       <Fragment>

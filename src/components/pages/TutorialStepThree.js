@@ -16,40 +16,49 @@ export default class TutorialStepThree extends Component {
     isConfirmed: false,
     isFailed: false,
   };
-  onCallConfirm = () => {
-    this.setState({ isValidating: true });
-    let disablingNumber = getCarrierDisablingNumber();
-    
-    
-    verifyCallForwarding().then(()=> {
-        this.setState({isValidating: true});
-        const theClass = this; //once again, use arrow functions RS
 
-        function checkCallStatusOnTimeout() {
-            checkForwardingResult().then(() => {
-                theClass.setState({isValidating: false});
-                var lastFwdStatus = checkForwarding() //again - use const and add a ';'
-               
-                if ("SUCCESS" === lastFwdStatus) {
-                    theClass.setState({isFailed: false});
-                   
-                    sendSuccessSMS(`Congratulations! Elefend Beta is successfully installed! To deactivate the service please press ${disablingNumber}`).then(()=>{return});
-                    theClass.setState({isConfirmed:true})
-                } else if ("FAILED" === lastFwdStatus || "INIT" !== lastFwdStatus) {
-                    theClass.setState({isFailed: true});
-                } else {
-                    setTimeout(checkCallStatusOnTimeout, 10000);
-                }
-            })
-        }
-        setTimeout(checkCallStatusOnTimeout, 10000);
-    })
+  onCallConfirm = async() => {
+    this.setState({ isValidating: true });
+    
+    try {
+      await verifyCallForwarding();
+      this.checkCallStatus();
+    } catch {
+      this.setState({ isValidating: false });
+    }
   };
+
+  checkCallStatus = async() => {
+    let disablingNumber = getCarrierDisablingNumber();
+
+    try {    
+      await checkForwardingResult();
+      const lastFwdStatus = checkForwarding();
+
+      if (lastFwdStatus === 'SUCCESS') {
+        this.setState({ isValidating: false });
+        this.setState({ isFailed: false });
+        await sendSuccessSMS(`Congratulations! Elefend Beta is successfully installed! To deactivate the service please press ${disablingNumber}`);
+        this.setState({ isConfirmed: true });
+
+      } else if (lastFwdStatus === 'FAILED' || lastFwdStatus !== 'INIT') {
+        this.setState({ isValidating: false });
+        this.setState({ isFailed: true });
+
+      } else {
+        setTimeout(this.checkCallStatus, 10000);
+      }
+    } catch(error) {
+      console.error(error);
+    }
+  };
+
   sendSMS = async () => {  
     this.setState({ isValidating: true });
-    await sendSuccessSMS(`To activate call forward of silenced calls please dial the following number:${ getCallForwardingNumber() }`);
+    await sendSuccessSMS(`To activate call forward of silenced calls please dial the following number: ${ getCallForwardingNumber() }`);
     this.setState({ isValidating: false });
   };
+
   render() {
     return (
       <div className="widget flexable-widget">

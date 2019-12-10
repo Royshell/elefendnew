@@ -5,6 +5,7 @@ class HomePage extends Component {
   goToApp = () => {
     this.props.history.push('/phone-form');
   };
+  
   render() {
     return (
       <div className="widget">

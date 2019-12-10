@@ -41,31 +41,37 @@ class TutorialStepOneIphone extends Component {
 
     return text;
   };
-  onConfirmSilenceCallers = () => {
 
+  onConfirmSilenceCallers = async() => {
     this.setState({ isValidating: true });
-    verifyBlockedNumber().then(()=>{
-      this.setState({ isValidating: true}); //loader should appear before .then()
-      const theClass = this; // no need when using arrow functions 
-      function checkCallStatusOnTimeout() { //old syntax. please use arrow functions
-        checkCallResult().then(()=>{
-          var lastCallStatus =  getLastCallStatus() // please use 'const' instead of var and add ;
-          if ("HUNGUP" === lastCallStatus) {
-            theClass.props.history.push('/tutorial-step-two-iphone');
-          } else if ("ANSWERED" === lastCallStatus || "INIT" !== lastCallStatus)
-          {
-            theClass.setState({isValditaionFailed: true});
-            theClass.setState({isValidating: false}); 
-          } else {
-            setTimeout(checkCallStatusOnTimeout,10000);
-          }
-        })
+
+    try {
+      await verifyBlockedNumber();
+      await this.checkCallStatus();
+    } catch {
+      this.setState({ isValidating: false });
+    }
+  };
+
+  checkCallStatus = async() => {
+
+    try {
+      await checkCallResult();
+      const lastCallStatus =  getLastCallStatus();
+
+      if (lastCallStatus === 'HUNGUP') {
+        this.props.history.push('/tutorial-step-two-iphone');
+      } else if (lastCallStatus === 'ANSWERED' || lastCallStatus !== 'INIT') {
+        this.setState({ isValidating: false }); 
+        this.setState({ isValditaionFailed: true });
+      } else {
+        setTimeout(this.checkCallStatus, 10000);
       }
-
-      setTimeout(checkCallStatusOnTimeout,10000);
-    });
-  }
-
+    } catch {
+      this.setState({ isValidating: false }); 
+    }
+  };
+  
   render() {
     return (
       <div className="widget">
@@ -86,9 +92,7 @@ class TutorialStepOneIphone extends Component {
         <div className="widget__input-wrapper">
           <button onClick={ this.onNextStage }>{ this.state.isValditaionFailed ? 'Try again' : 'Next' }</button>
         </div>    
-        {
-          this.state.isValditaionFailed && <a className="widget--a" href="mailto:info@elefend.com">Contact our customer support team for help</a>
-        }  
+        { this.state.isValditaionFailed && <a className="widget--a" href="mailto:info@elefend.com">Contact our customer support team for help</a> }  
         { this.state.isValidating && <ValidatingWidget /> }     
       </div>
     );
