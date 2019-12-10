@@ -178,7 +178,6 @@ const getCarrierDisablingNumber = () => {
   return disablingNumber;  
 };
  
-
 const getTemplateForCarrier = (carrier) => { //this functionality should be move to backend. Try to use integeres instead of strings. A swtich case will better than if statements
 
   if(carrier === '972') {
@@ -352,7 +351,6 @@ const checkCallResult = async() => {
   }
 };
 
-
 const checkForwardingResult = async() => {
   const body = {
     client_id:  my_client_id, 
@@ -443,7 +441,6 @@ const sendSuccessSMS = async(message) => {
     console.error(err);
   }
 };
-
 
 String.prototype.replaceAt = function(index, replacement) {
   return this.substr(0, index) + replacement + this.substr(index + replacement.length);
