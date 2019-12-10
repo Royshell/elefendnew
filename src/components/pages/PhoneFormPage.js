@@ -16,7 +16,7 @@ class PhoneFormPage extends Component {
   state = {
     phoneNumber: '',
     login_status: 'Trying',
-    isValditaing: false
+    isValditaing: false 
   };
 
   onLoad = async() => {
@@ -92,11 +92,11 @@ class PhoneFormPage extends Component {
                 />
               </div>
             </div>   
+            { this.state.isValditaing && <ValidatingWidget /> }
             <div className="widget__input-wrapper widget__mobile-margin">
               <button onClick={ this.getPhoneNumber } >Verify</button>
             </div> 
             <p className="widget__small-p">By clicking VERIFY, I understand and agree to Elefend's <a className="widget--a" href="/assets/html/tsandcs.html" target="_blank"> terms and conditions </a> and <a className="widget--a" href="/assets/html/tos.html" target="_blank"> privacy policy </a></p>
-            { this.state.isValditaing && <ValidatingWidget />}
           </div>
           
         );
